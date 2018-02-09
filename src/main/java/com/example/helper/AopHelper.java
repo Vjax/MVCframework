@@ -4,6 +4,7 @@ import com.example.annotation.Aspect;
 import com.example.proxy.AspectProxy;
 import com.example.proxy.Proxy;
 import com.example.proxy.ProxyManager;
+import com.example.proxy.TransactionProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,15 @@ public class AopHelper {
      */
     private static Map<Class<?>,Set<Class<?>>> createProxyMap() throws Exception{
         Map<Class<?>,Set<Class<?>>> proxyMap = new HashMap<Class<?>, Set<Class<?>>>();
+        addAspectProxy(proxyMap);
+        addTransactionProxy(proxyMap);
+        return proxyMap;
+    }
+
+    /**
+     * 添加切面代理
+     */
+    private static void addAspectProxy(Map<Class<?>,Set<Class<?>>> proxyMap)throws Exception{
         Set<Class<?>> proxyClassSet = ClassHelper.getClassBySuper(AspectProxy.class);
         for (Class<?> proxyClass : proxyClassSet){
             if (proxyClass.isAnnotationPresent(Aspect.class)){
@@ -47,7 +57,14 @@ public class AopHelper {
                 proxyMap.put(proxyClass,targetClassSet);
             }
         }
-        return proxyMap;
+    }
+
+    /**
+     * 添加事务代理
+     */
+    private static void addTransactionProxy(Map<Class<?>,Set<Class<?>>> proxyMap) throws Exception{
+        Set<Class<?>> serviceClassSet = ClassHelper.getServiceClassSet();
+        proxyMap.put(TransactionProxy.class,serviceClassSet);
     }
 
     /**
